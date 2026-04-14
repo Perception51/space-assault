@@ -492,7 +492,7 @@ function checkCollisions() {
   // Player bullets vs boss
   if (boss) {
     playerBullets = playerBullets.filter(b => {
-      if (aabb(b, boss)) {
+      if (boss && aabb(b, boss)) {
         boss.hp--;
         boss.hitFlash = 6;
         if (boss.hp <= 0) {
