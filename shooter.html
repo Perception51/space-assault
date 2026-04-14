@@ -182,7 +182,7 @@ function spawnBoss(w) {
     x: W / 2 - 40, y: 60,
     w: 80, h: 80,
     hp, maxHp: hp,
-    vx: 1.2, driftAngle: 0,
+    speed: 1.44,
     shootTimer: 80,
     hitFlash: 0,
     color: '#ff6600'
@@ -434,14 +434,16 @@ function updateEnemyBullets() {
 }
 
 function updateBoss() {
-  // Horizontal drift, bounce off walls
-  boss.x += boss.vx;
-  if (boss.x <= 0 || boss.x + boss.w >= W) boss.vx *= -1;
+  // Home toward player, clamped to upper 45% of canvas
+  const px = player.x + player.w / 2;
+  const py = player.y + player.h / 2;
+  const bx = boss.x + boss.w / 2;
+  const by = boss.y + boss.h / 2;
+  const d = norm(px - bx, py - by);
+  boss.x += d.x * boss.speed;
+  boss.y += d.y * boss.speed;
   boss.x = Math.max(0, Math.min(W - boss.w, boss.x));
-
-  // Vertical sine oscillation
-  boss.driftAngle += 0.01;
-  boss.y = 60 + Math.sin(boss.driftAngle) * 30;
+  boss.y = Math.max(20, Math.min(H * 0.45 - boss.h, boss.y));
 
   if (boss.hitFlash > 0) boss.hitFlash--;
 
