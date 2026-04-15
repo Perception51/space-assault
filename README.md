@@ -2,7 +2,7 @@
 
 A retro-style top-down shooter playable entirely in the browser. No dependencies, no install — just open `shooter.html` and play.
 
-![Space Assault](https://img.shields.io/badge/version-v1.1.0-orange) ![License](https://img.shields.io/badge/license-MIT-green)
+![Space Assault](https://img.shields.io/badge/version-v1.3.0-orange) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -27,7 +27,8 @@ Survive endless waves of alien enemies that grow faster and more numerous each r
   - **Type A** (grey) — basic, 1 HP
   - **Type B** (purple) — armored, 2 HP, introduced at wave 3
   - **Type C** (red) — shooter, 2 HP, fires back at the player from wave 5
-- **Boss waves** every 10 levels — a giant enemy with scaled HP, radial bullet sprays, and a full-width HP bar
+- **Boss waves** every 10 levels — a giant homing enemy with scaled HP, radial bullet sprays, and a full-width HP bar
+- **Health powerup** — a glowing green `+` spawns mid-wave every 3–4 waves, restoring 1 life (max 3)
 - **3 lives** with invincibility frames after each hit
 - **Persistent hi-score** tracked across rounds
 - CRT scanline overlay and particle death effects
@@ -55,5 +56,8 @@ Releases follow [Semantic Versioning](https://semver.org/). See the [Releases](h
 
 | Version | Summary |
 |---|---|
+| `v1.3.0` | Health powerup spawns every 3–4 waves |
+| `v1.2.0` | Boss homing movement and 20% speed increase |
+| `v1.1.1` | Fix crash when multiple bullets kill boss in same frame |
 | `v1.1.0` | Boss waves every 10 levels |
 | `v1.0.0` | Initial release |
