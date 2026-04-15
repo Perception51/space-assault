@@ -194,6 +194,7 @@ function spawnBoss(w) {
     color: '#ff6600'
   };
   enemies = []; // ensure empty so wave-clear check won't trigger from leftover enemies
+  powerupSpawnedThisWave = false;
 }
 
 function spawnPowerup() {
@@ -224,6 +225,7 @@ function initGame() {
   boss = null;
   powerup = null;
   powerupWave = Math.floor(rnd(3, 5));
+  while (isBossWave(powerupWave)) powerupWave++; // never schedule on a boss wave
   waveStartCount = 0;
   powerupSpawnedThisWave = false;
   spawnWave(wave);
@@ -394,6 +396,7 @@ function update() {
       spawnPowerup();
       powerupSpawnedThisWave = true;
       powerupWave += Math.floor(rnd(3, 5));
+      while (isBossWave(powerupWave)) powerupWave++; // never schedule on a boss wave
     }
     if (powerup) updatePowerup();
     const waveCleared = enemies.length === 0 && boss === null;
