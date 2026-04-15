@@ -135,6 +135,10 @@ let state = 'start', player = null, enemies = [], playerBullets = [], enemyBulle
 let score, wave, lives, shootCooldown, waveTimer, waveTextAlpha;
 let highScore = 0;
 let boss = null;
+let powerup = null;
+let powerupWave = 0;
+let waveStartCount = 0;
+let powerupSpawnedThisWave = false;
 
 function isBossWave(w) { return w % 10 === 0; }
 
@@ -173,6 +177,8 @@ function spawnWave(w) {
       driftSpeed: rnd(0.3, 0.8)
     });
   }
+  waveStartCount = enemies.length;
+  powerupSpawnedThisWave = false;
 }
 
 function spawnBoss(w) {
@@ -190,6 +196,20 @@ function spawnBoss(w) {
   enemies = []; // ensure empty so wave-clear check won't trigger from leftover enemies
 }
 
+function spawnPowerup() {
+  powerup = {
+    x: rnd(40, W - 64),
+    y: rnd(H * 0.5, H - 80),
+    w: 24, h: 24,
+    life: 600, maxLife: 600
+  };
+}
+
+function updatePowerup() {
+  powerup.life--;
+  if (powerup.life <= 0) powerup = null;
+}
+
 function initGame() {
   player = { x: W / 2 - 14, y: H - 80, w: 28, h: 28, speed: 4, iframes: 0 };
   playerBullets = [];
@@ -202,6 +222,10 @@ function initGame() {
   waveTimer = 0;
   waveTextAlpha = 0;
   boss = null;
+  powerup = null;
+  powerupWave = Math.floor(rnd(3, 5));
+  waveStartCount = 0;
+  powerupSpawnedThisWave = false;
   spawnWave(wave);
   state = 'wave_intro';
   waveTimer = 90;
@@ -314,6 +338,23 @@ function drawBoss() {
   ctx.fillText(`BOSS  HP: ${boss.hp} / ${boss.maxHp}`, W / 2, barY + barH - 1);
 }
 
+function drawPowerup() {
+  const cx = powerup.x + powerup.w / 2;
+  const cy = powerup.y + powerup.h / 2;
+  const fade = powerup.life < 120 ? powerup.life / 120 : 1;
+  const pulse = 1 + Math.sin(Date.now() / 180) * 0.18;
+  const arm = 9 * pulse;
+  const thick = 5;
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.fillStyle = '#00ff41';
+  ctx.shadowBlur = 14;
+  ctx.shadowColor = '#00ff41';
+  ctx.fillRect(cx - arm, cy - thick / 2, arm * 2, thick); // horizontal bar
+  ctx.fillRect(cx - thick / 2, cy - arm, thick, arm * 2); // vertical bar
+  ctx.restore();
+}
+
 function drawScanlines() {
   ctx.save();
   ctx.globalAlpha = 0.06;
@@ -347,6 +388,14 @@ function update() {
     if (boss) updateBoss();
     updateEnemyBullets();
     checkCollisions();
+    // Spawn health powerup mid-wave on scheduled waves (skip boss waves)
+    if (!powerupSpawnedThisWave && wave === powerupWave && !isBossWave(wave) &&
+        enemies.length > 0 && enemies.length <= Math.floor(waveStartCount / 2)) {
+      spawnPowerup();
+      powerupSpawnedThisWave = true;
+      powerupWave += Math.floor(rnd(3, 5));
+    }
+    if (powerup) updatePowerup();
     const waveCleared = enemies.length === 0 && boss === null;
     if (waveCleared) {
       wave++;
@@ -512,6 +561,12 @@ function checkCollisions() {
     });
   }
 
+  // Powerup vs player (works even during iframes)
+  if (powerup && aabb(powerup, player)) {
+    if (lives < 3) lives++;
+    powerup = null;
+  }
+
   if (player.iframes > 0) return;
 
   // Boss body vs player
@@ -620,6 +675,9 @@ function renderGame() {
 
   // Particles
   particles.forEach(p => p.draw());
+
+  // Powerup
+  if (powerup) drawPowerup();
 
   // HUD
   drawHUD();
